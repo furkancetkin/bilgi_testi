@@ -8,14 +8,17 @@ class BilgiTesti extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return MaterialApp(
-        debugShowCheckedModeBanner: false,
-        home: Scaffold(
-            backgroundColor: Colors.indigo[700],
-            body: SafeArea(
-                child: Padding(
-              padding: EdgeInsets.symmetric(horizontal: 10.0),
-              child: SoruSayfasi(),
-            ))));
+      debugShowCheckedModeBanner: false,
+      home: Scaffold(
+        backgroundColor: Colors.white,
+        body: SafeArea(
+          child: Padding(
+            padding: EdgeInsets.symmetric(horizontal: 10.0),
+            child: SoruSayfasi(),
+          ),
+        ),
+      ),
+    );
   }
 }
 
@@ -31,35 +34,74 @@ class _SoruSayfasiState extends State<SoruSayfasi> {
 
   void butonFonksiyonu(bool secilenButon) {
     if (test_1.testBittiMi() == true) {
-      showDialog(
-          context: context,
-          builder: (_) => new AlertDialog(
-                title: new Text("Bravo Testi Bitirdiniz"),
-                content: new Text("Doğru Sayınız : $dogrular"),
-                actions: <Widget>[
-                  FlatButton(
-                    child: Text('Testi Bitir'),
-                    onPressed: () {
-                      Navigator.of(context).pop();
-                      setState(() {
-                        test_1.testiSifirla();
-                        secimler = [];
-                        dogrular = 0;
-                      });
-                    },
-                  )
-                ],
-              ));
+      setState(() {
+        if (test_1.getSoruYaniti() == secilenButon) {
+          secimler.add(kDogruIconu);
+          dogrular++;
+          endShowDialog();
+        } else {
+          secimler.add(kYanlisIconu);
+          endShowDialog();
+        }
+      });
     } else {
       setState(() {
-        test_1.getSoruYaniti() == secilenButon
-            ? secimler.add(kDogruIconu)
-            : secimler.add(kYanlisIconu);
+        if (test_1.getSoruYaniti() == secilenButon) {
+          secimler.add(kDogruIconu);
+        } else {
+          secimler.add(kYanlisIconu);
+          showDialog(
+            context: context,
+            builder: (_) => new AlertDialog(
+              backgroundColor: Colors.red[300],
+              title: new Text("Doğrusu"),
+              content: new Text(test_1.getDogrusu()),
+              actions: <Widget>[
+                FlatButton(
+                  child: Text(
+                    'Devam Et',
+                    style: TextStyle(color: Colors.white),
+                  ),
+                  onPressed: () {
+                    Navigator.of(context).pop();
+                  },
+                ),
+              ],
+            ),
+          );
+        }
 
         test_1.getSoruYaniti() == secilenButon ? dogrular++ : dogrular;
         test_1.sonrakiSoru();
       });
     }
+  }
+
+  Future endShowDialog() {
+    return showDialog(
+      context: context,
+      builder: (_) => new AlertDialog(
+        backgroundColor: dogrular == 0 ? Colors.red[300] : Colors.green[300],
+        title: new Text("Bravo Testi Bitirdiniz"),
+        content: new Text("Doğru Sayınız : $dogrular"),
+        actions: <Widget>[
+          FlatButton(
+            child: Text(
+              'Testi Tekrarla',
+              style: TextStyle(color: Colors.white),
+            ),
+            onPressed: () {
+              Navigator.of(context).pop();
+              setState(() {
+                test_1.testiSifirla();
+                secimler = [];
+                dogrular = 0;
+              });
+            },
+          ),
+        ],
+      ),
+    );
   }
 
   @override
@@ -78,7 +120,6 @@ class _SoruSayfasiState extends State<SoruSayfasi> {
                 textAlign: TextAlign.center,
                 style: TextStyle(
                   fontSize: 20.0,
-                  color: Colors.white,
                 ),
               ),
             ),
@@ -90,8 +131,9 @@ class _SoruSayfasiState extends State<SoruSayfasi> {
         Expanded(
           flex: 1,
           child: Padding(
-              padding: EdgeInsets.symmetric(horizontal: 6.0),
-              child: Row(children: <Widget>[
+            padding: EdgeInsets.symmetric(horizontal: 6.0),
+            child: Row(
+              children: <Widget>[
                 Expanded(
                     child: Padding(
                         padding: EdgeInsets.symmetric(horizontal: 6),
@@ -108,19 +150,23 @@ class _SoruSayfasiState extends State<SoruSayfasi> {
                           },
                         ))),
                 Expanded(
-                    child: Padding(
-                        padding: EdgeInsets.symmetric(horizontal: 6),
-                        child: RaisedButton(
-                          padding: EdgeInsets.all(12),
-                          textColor: Colors.white,
-                          color: Colors.green[400],
-                          child: Icon(Icons.thumb_up, size: 30.0),
-                          onPressed: () {
-                            butonFonksiyonu(true);
-                          },
-                        ))),
-              ])),
-        )
+                  child: Padding(
+                    padding: EdgeInsets.symmetric(horizontal: 6),
+                    child: RaisedButton(
+                      padding: EdgeInsets.all(12),
+                      textColor: Colors.white,
+                      color: Colors.green[400],
+                      child: Icon(Icons.thumb_up, size: 30.0),
+                      onPressed: () {
+                        butonFonksiyonu(true);
+                      },
+                    ),
+                  ),
+                ),
+              ],
+            ),
+          ),
+        ),
       ],
     );
   }
